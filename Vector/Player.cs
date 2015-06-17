@@ -2,62 +2,85 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace Vector
 {
-    class Player
+    class Player : Sprite, Vector.IMove, Vector.IJump, Vector.ICollide
     {
-        Rectangle bounds;
-        public Rectangle Bounds { get { return bounds; } set { bounds = value; } }
-        public int MovementSpeed { get; private set; }
-        public Vector2 Velocity { get; set; }
-        public Vector2 Position { get { return new Vector2(bounds.Left, bounds.Top); } }
-
-        int Gravity;
-        int JumpVelocity;
-        Texture2D Texture;
-
-        public void Initialize(int x, int y)
-        {
-            bounds = new Rectangle(x, y, 0, 0);
-            Velocity = new Vector2(0);
-            Gravity = 1;
-            MovementSpeed = 5;
-            JumpVelocity = -15;
+        Vector2 _Velocity;
+        public Vector2 Velocity {
+            get { return _Velocity; }
+            set
+            {
+                _Velocity = value;
+                Arrow.Direction = value;
+            }
         }
 
-        public void LoadContent(ContentManager content)
+        public Arrow Arrow { get; set; }
+        public bool GravityOn { get; set; }
+
+        int MoveSpeed;
+        int JumpSpeed;
+        int Gravity;
+
+        public Player(ref GraphicsDeviceManager graphicsDeviceManager)
+            : base(ref graphicsDeviceManager)
         {
-            Texture = content.Load<Texture2D>("man");
-            bounds = new Rectangle(Bounds.X, Bounds.Y, Texture.Width, Texture.Height);
+            Arrow = new Arrow(ref graphicsDeviceManager);
+            Gravity = 1;
+            GravityOn = true;
+        }
+
+        public void Initialize(Point position, int moveSpeed, int jumpSpeed)
+        {
+            base.Initialize(position);
+            Arrow.Initialize(position, 2, 8);
+
+            Velocity = Vector2.Zero;
+            MoveSpeed = moveSpeed;
+            JumpSpeed = jumpSpeed;
+
+        }
+
+        public void MoveLeft()
+        {
+            Velocity = new Vector2(-MoveSpeed, Velocity.Y);
+        }
+
+        public void MoveRight()
+        {
+            Velocity = new Vector2(MoveSpeed, Velocity.Y);
+        }
+
+        public void Stop()
+        {
+            Velocity = Vector2.Zero;
+        }
+
+        public void Jump()
+        {
+            Velocity = new Vector2(Velocity.X, -JumpSpeed);
+            GravityOn = true;
         }
 
         public void Update()
         {
-            Velocity = new Vector2(Velocity.X,Velocity.Y+Gravity);
-            bounds.Offset(Velocity);
+            Velocity = new Vector2(Velocity.X, Velocity.Y + (GravityOn ? Gravity : 0));
+            Position = new Point((int)(Position.X + Velocity.X), (int)(Position.Y + Velocity.Y));
         }
 
-        public void MoveLeft() {
-            Velocity = new Vector2(-MovementSpeed, Velocity.Y);
-        }
-
-        public void MoveRight() {
-            Velocity = new Vector2(MovementSpeed, Velocity.Y);
-        }
-
-        public void Stop() {
-            Velocity = new Vector2(0, Velocity.Y);
-        }
-
-        public void Jump() {
-            Velocity = new Vector2(Velocity.X, JumpVelocity);
-        }
-
-        public void Draw(SpriteBatch spriteBatch)
+        public void Collide<T>(T component) where T : Sprite, Vector.ICollide
         {
-            spriteBatch.Draw(Texture, bounds, Color.White);
+            if (Bounds.Intersects(component.Bounds))
+            {
+                if (Bounds.Bottom > component.Bounds.Top)
+                {
+                    Velocity = new Vector2(Velocity.X, 0);
+                    Position = new Point(Position.X, component.Bounds.Top - Bounds.Height);
+                    GravityOn = false;
+                }
+            }
         }
     }
 }

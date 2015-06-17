@@ -39,6 +39,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Arrow.cs" />
+    <Compile Include="ICollide.cs" />
+    <Compile Include="Sprite.cs" />
+    <Compile Include="IJump.cs" />
+    <Compile Include="IMove.cs" />
+    <Compile Include="IUpdate.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="MainGame.cs" />
     <Compile Include="Program.cs" />

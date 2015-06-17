@@ -11,14 +11,13 @@ namespace Vector
     /// </summary>
     public class MainGame : Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
-        Player player;
-        Wall floor;
-        Arrow arrow;
-        SpriteFont pixel;
-        Texture2D cursor;
-        ArrayList movementStack;
+        GraphicsDeviceManager Graphics;
+        SpriteBatch SpriteBatch;
+        Player Player;
+        Wall Floor;
+        SpriteFont Pixel;
+        Texture2D Cursor;
+        ArrayList MovementStack;
 
         int originX;
         int originY;
@@ -30,12 +29,11 @@ namespace Vector
 
         public MainGame()
         {
-            graphics = new GraphicsDeviceManager(this);
-            player = new Player();
-            floor = new Wall();
-            arrow = new Arrow();
+            Graphics = new GraphicsDeviceManager(this);
+            Player = new Player(ref Graphics);
+            Floor = new Wall(ref Graphics);
 
-            movementStack = new ArrayList();
+            MovementStack = new ArrayList();
 
             paused = false;
             pauseReady = true;
@@ -56,24 +54,10 @@ namespace Vector
             screenWidth = GraphicsDevice.Viewport.TitleSafeArea.Width;
             screenHeight = GraphicsDevice.Viewport.TitleSafeArea.Height;
 
-            //player.Initialize(originX + screenWidth/2, originY + screenHeight/2);
-            player.Initialize(originX - 5, originY - 448);
-            floor.Initialize(originX, originY+screenHeight-5,screenWidth,5);
-            arrow.Initialize(CreateTexture(1, 1, Color.Red), player.Velocity, player.Position, 2, 8);
+            Player.Initialize(new Point(originX - 5, originY - 448), 5, 10);
+            Floor.Initialize(new Rectangle(originX, originY+screenHeight-5,screenWidth,5));
 
             base.Initialize();
-        }
-
-        private Texture2D CreateTexture(int width, int height, Color color)
-        {
-            Texture2D texture = new Texture2D(graphics.GraphicsDevice, width, height);
-            Color[] data = new Color[width*height];
-            for (int i = 0; i < data.Length; i++) {
-                data[i] = color;
-            }
-            texture.SetData(data);
-
-            return texture;
         }
 
         /// <summary>
@@ -83,11 +67,12 @@ namespace Vector
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-            cursor = Content.Load<Texture2D>("cursor");
-            pixel = Content.Load<SpriteFont>("Pixel");
-            player.LoadContent(Content);
-            floor.LoadContent(Content);
+            SpriteBatch = new SpriteBatch(GraphicsDevice);
+            Cursor = Content.Load<Texture2D>("Cursor");
+            Pixel = Content.Load<SpriteFont>("Pixel");
+            Player.LoadTexture(Content,"man");
+            Player.Arrow.LoadTexture(Color.Red);
+            Floor.LoadTexture(Content,"dirt");
         }
 
         /// <summary>
@@ -106,15 +91,16 @@ namespace Vector
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+
             HandleInputs();
 
             if (!paused)
             {
-                player.Update();
-                HandleCollisions();
+                Player.Collide<Wall>(Floor);
+                Player.Update();
 
-                arrow.Direction = player.Velocity;
-                arrow.Position = new Vector2(player.Position.X+player.Bounds.Width/2,player.Position.Y+player.Bounds.Height/2);
+                Player.Arrow.Direction = Player.Velocity;
+                Player.Arrow.Position = new Point(Player.Position.X+Player.Bounds.Width/2,Player.Position.Y+Player.Bounds.Height/2);
             }
 
             base.Update(gameTime);
@@ -125,125 +111,84 @@ namespace Vector
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            if (Keyboard.GetState().IsKeyUp(Keys.P) && !pauseReady)
+            if (Keyboard.GetState().IsKeyUp(Keys.P))
             {
                 pauseReady = true;
             }
 
             if (Keyboard.GetState().IsKeyDown(Keys.P) && pauseReady)
             {
-                if (paused && !arrow.Dragging)
+                if (paused && !Player.Arrow.Dragging)
                 {
-                    player.Velocity = arrow.Direction;
+                    Player.Velocity = Player.Arrow.Direction;
                 }
 
                 paused = !paused;
                 pauseReady = false;
             }
 
-            if (Keyboard.GetState().IsKeyDown(Keys.A) && !movementStack.Contains(Keys.A))
+            if (Keyboard.GetState().IsKeyDown(Keys.A) && !MovementStack.Contains(Keys.A))
             {
-                movementStack.Add(Keys.A);
+                MovementStack.Add(Keys.A);
             } 
-            else if (Keyboard.GetState().IsKeyUp(Keys.A) && movementStack.Contains(Keys.A))
+            else if (Keyboard.GetState().IsKeyUp(Keys.A) && MovementStack.Contains(Keys.A))
             {
-                movementStack.Remove(Keys.A);
+                MovementStack.Remove(Keys.A);
             }
 
-            if (Keyboard.GetState().IsKeyDown(Keys.D) && !movementStack.Contains(Keys.D))
+            if (Keyboard.GetState().IsKeyDown(Keys.D) && !MovementStack.Contains(Keys.D))
             {
-                movementStack.Add(Keys.D);
+                MovementStack.Add(Keys.D);
             }
-            else if (Keyboard.GetState().IsKeyUp(Keys.D) && movementStack.Contains(Keys.D))
+            else if (Keyboard.GetState().IsKeyUp(Keys.D) && MovementStack.Contains(Keys.D))
             {
-                movementStack.Remove(Keys.D);
+                MovementStack.Remove(Keys.D);
             }
 
-            if (movementStack.Count > 0)
+            if (MovementStack.Count > 0)
             {
-                switch ((Keys) movementStack[movementStack.Count-1])
+                switch ((Keys) MovementStack[MovementStack.Count-1])
                 {
                     case Keys.A:
-                        player.MoveLeft();
+                        Player.MoveLeft();
                         break;
 
                     case Keys.D:
-                        player.MoveRight();
+                        Player.MoveRight();
                         break;
                 }
             }
 
-            if (floor.Bounds.Top <= player.Bounds.Bottom)
+            if (Floor.Bounds.Top <= Player.Bounds.Bottom)
             {
-                if (movementStack.Count == 0)
+                if (MovementStack.Count == 0)
                 {
-                    player.Stop();
+                    Player.Stop();
                 }
 
                 if (Keyboard.GetState().IsKeyDown(Keys.Space))
                 {
-                    player.Jump();
+                    Player.Jump();
                 }
             }
 
             if (paused)
             {
-                Rectangle arrowEnd = new Rectangle((int)arrow.End.X-10, (int)arrow.End.Y-10, 20, 20);
+                Rectangle arrowEnd = new Rectangle((int)Player.Arrow.End.X-10, (int)Player.Arrow.End.Y-10, 20, 20);
                 if (Mouse.GetState().LeftButton == ButtonState.Pressed)
                 {
-                    if (arrowEnd.Contains(Mouse.GetState().Position) && !arrow.Dragging)
+                    if (arrowEnd.Contains(Mouse.GetState().Position) && !Player.Arrow.Dragging)
                     {
-                        arrow.Dragging = true;
-                    } else if (arrow.Dragging) {
-                        arrow.End = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
+                        Player.Arrow.Dragging = true;
+                    } else if (Player.Arrow.Dragging) {
+                        Player.Arrow.End = Mouse.GetState().Position;
                     } 
                 }
 
-                if (Mouse.GetState().LeftButton == ButtonState.Released && arrow.Dragging)
+                if (Mouse.GetState().LeftButton == ButtonState.Released && Player.Arrow.Dragging)
                 {
-                    arrow.Dragging = false;
+                    Player.Arrow.Dragging = false;
                 }
-            }
-        }
-
-        private void HandleCollisions()
-        {
-            if (floor.Bounds.Top <= player.Bounds.Bottom)
-            {
-                player.Bounds = new Rectangle(
-                    player.Bounds.X,
-                    floor.Bounds.Top-player.Bounds.Height,
-                    player.Bounds.Width, 
-                    player.Bounds.Height
-                    );
-
-                if (player.Velocity.Y > 0)
-                {
-                    player.Velocity = new Vector2(player.Velocity.X, 0);
-                }
-            }
-
-            if (player.Bounds.Left < originX)
-            {
-                player.Bounds = new Rectangle(
-                    originX,
-                    player.Bounds.Y,
-                    player.Bounds.Width, 
-                    player.Bounds.Height
-                    );
-
-                player.Stop();
-            }
-            else if (player.Bounds.Right > originX+screenWidth)
-            {
-                player.Bounds = new Rectangle(
-                    originX+screenWidth-player.Bounds.Width,
-                    player.Bounds.Y,
-                    player.Bounds.Width, 
-                    player.Bounds.Height
-                    );
-
-                player.Stop();
             }
         }
 
@@ -255,7 +200,7 @@ namespace Vector
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            spriteBatch.Begin(
+            SpriteBatch.Begin(
                 SpriteSortMode.FrontToBack, 
                 null, 
                 SamplerState.LinearWrap,
@@ -265,16 +210,16 @@ namespace Vector
 
             if (paused)
             {
-                arrow.Draw(spriteBatch);
+                Player.Arrow.DrawRotated(SpriteBatch,(float)Player.Arrow.Angle,Vector2.Zero);
 
-                spriteBatch.DrawString(pixel, "PAUSED", new Vector2(0), Color.Black);
-                spriteBatch.Draw(cursor, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), Color.Black);
+                SpriteBatch.DrawString(Pixel, "PAUSED", new Vector2(0), Color.Black);
+                SpriteBatch.Draw(Cursor, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), Color.Black);
             }
 
-            player.Draw(spriteBatch);
-            floor.Draw(spriteBatch);
+            Player.Draw(SpriteBatch);
+            Floor.DrawTiled(SpriteBatch);
 
-            spriteBatch.End();
+            SpriteBatch.End();
 
             base.Draw(gameTime);
         }

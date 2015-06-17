@@ -4,46 +4,59 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Vector
 {
-    class Arrow
+    class Arrow : Sprite
     {
-        Texture2D Texture;
-        public Vector2 Direction { get; set; }
-        public Vector2 End { 
-            get { return Vector2.Add(Vector2.Multiply(Direction, Stretch),Position); }
-            set { Direction = Vector2.Divide(Vector2.Subtract(value, Position),Stretch); }
+        Vector2 _Direction;
+        public Vector2 Direction
+        {
+            get { return _Direction;  }
+            set
+            {
+                _Direction = value;
+                Bounds = new Rectangle(Position.X, Position.Y, (int)Direction.Length() * Scale, Thickness);
+            }
         }
-        public Vector2 Position { get; set; }
+
         public bool Dragging { get; set; }
 
-        int Width;
-        int Stretch;
-        public void Initialize(Texture2D texture, Vector2 direction, Vector2 position, int width, int stretch) {
-            Texture = texture;
-            Direction = direction;
-            Position = position;
-            Width = width;
-            Stretch = stretch;
+        public Point End
+        {
+            get
+            {
+                return new Point((int)(Position.X + Direction.X * Scale), (int)(Position.Y + Direction.Y * Scale));
+            }
+            set
+            {
+                Direction = new Vector2((value.X - Position.X) / Scale, (value.Y - Position.Y) / Scale);  
+            }
+        }
+
+        public double Angle {
+            get
+            {
+                double angle = Math.Acos(Vector2.Dot(Direction, Vector2.UnitX) / Direction.Length());
+                if (Direction.Y < 0)
+                {
+                    angle *= -1;
+                }
+                return angle;
+            }
+        }
+
+        int Scale;
+        int Thickness;
+
+        public Arrow(ref GraphicsDeviceManager graphicsDeviceManager)
+            : base(ref graphicsDeviceManager)
+        {
             Dragging = false;
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Initialize(Point position, int thickness, int scale)
         {
-            double angle = Math.Acos(Vector2.Dot(Direction, Vector2.UnitX) / Direction.Length());
-            if (Direction.Y < 0)
-            {
-                angle *= -1;
-            }
-
-            spriteBatch.Draw(
-                Texture,
-                new Rectangle((int)Position.X, (int)Position.Y, (int)Direction.Length()*Stretch, Width),
-                null,
-                Color.Red,
-                (float) angle,
-                new Vector2(0),
-                SpriteEffects.None,
-                1f
-                );
+            base.Initialize(position);
+            Scale = scale;
+            Thickness = thickness;
         }
     }
 }

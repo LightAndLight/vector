@@ -5,29 +5,21 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Vector
 {
-    class Wall
+    class Wall : Sprite, Vector.ICollide
     {
-        public Rectangle Bounds { get; private set; }
-        Texture2D Texture;
+        public Wall(ref GraphicsDeviceManager graphicsDeviceManager) : base(ref graphicsDeviceManager) { }
 
-        public void Initialize(int x, int y, int width, int height)
+        public void Initialize(Rectangle bounds)
         {
-            Bounds = new Rectangle(x, y, width, height);
+            Bounds = bounds;
         }
 
-        public void LoadContent(ContentManager content)
+        public override void LoadTexture(ContentManager content, string name)
         {
-            Texture = content.Load<Texture2D>("dirt");
+            Texture = content.Load<Texture2D>(name);
+            Bounds = new Rectangle(Bounds.X, Bounds.Y, Bounds.Width, Texture.Height);
         }
 
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            spriteBatch.Draw(Texture, 
-                new Vector2(Bounds.X,Bounds.Y), 
-                Bounds, 
-                Color.White, 0, 
-                new Vector2(0), 1, 
-                SpriteEffects.None, 0);
-        }
+        public void Collide<T>(T component) where T : Sprite, Vector.ICollide { }
     }
 }
