@@ -12,7 +12,7 @@ namespace Vector
         }
 
         public bool LeftReleased() {
-            return Keyboard.GetState().IsKeyUp(Keys.A) || Keyboard.GetState().IsKeyUp(Keys.Left);
+            return Keyboard.GetState().IsKeyUp(Keys.A) && Keyboard.GetState().IsKeyUp(Keys.Left);
         }
 
         public bool RightPressed()
@@ -21,22 +21,22 @@ namespace Vector
         }
 
         public bool RightReleased() {
-             return Keyboard.GetState().IsKeyUp(Keys.D) || Keyboard.GetState().IsKeyUp(Keys.Right);
+             return Keyboard.GetState().IsKeyUp(Keys.D) && Keyboard.GetState().IsKeyUp(Keys.Right);
         }
 
         public bool Jump()
         {
-            return Keyboard.GetState().IsKeyDown(Keys.Space) || Keyboard.GetState().IsKeyDown(Keys.Up);
+            return Keyboard.GetState().IsKeyDown(Keys.W) || Keyboard.GetState().IsKeyDown(Keys.Up);
         }
 
         public bool PausePressed()
         {
-            return Keyboard.GetState().IsKeyDown(Keys.P);
+            return Keyboard.GetState().IsKeyDown(Keys.Space);
         }
 
         public bool PauseReleased()
         {
-            return Keyboard.GetState().IsKeyUp(Keys.P);
+            return Keyboard.GetState().IsKeyUp(Keys.Space);
         }
 
         public bool Exit()
