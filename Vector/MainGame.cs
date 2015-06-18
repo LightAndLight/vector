@@ -187,11 +187,13 @@ namespace Vector
                 Rectangle arrowEnd = new Rectangle((int)Player.Arrow.End.X-10, (int)Player.Arrow.End.Y-10, 20, 20);
                 if (InputManager.MouseDown())
                 {
+                    Console.WriteLine("End: " + Player.Arrow.End);
+                    Console.WriteLine("Mouse: " + InputManager.MousePosition());
                     if (arrowEnd.Contains(InputManager.MousePosition()) && !Player.Arrow.Dragging)
                     {
                         Player.Arrow.Dragging = true;
                     } else if (Player.Arrow.Dragging) {
-                        Player.Arrow.End = InputManager.MousePosition();
+                        Player.Arrow.End = InputManager.MousePosition().ToVector2();
                     } 
                 }
 

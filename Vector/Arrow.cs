@@ -13,17 +13,17 @@ namespace Vector
             set
             {
                 _Direction = value;
-                Bounds = new Rectangle(Position.X, Position.Y, (int)Direction.Length() * Scale, Thickness);
+                Bounds = new Rectangle(Position.X, Position.Y, (int)(Direction.Length() * Scale), Thickness);
             }
         }
 
         public bool Dragging { get; set; }
 
-        public Point End
+        public Vector2 End
         {
             get
             {
-                return new Point((int)(Position.X + Direction.X * Scale), (int)(Position.Y + Direction.Y * Scale));
+                return new Vector2(Position.X + Direction.X * Scale, Position.Y + Direction.Y * Scale);
             }
             set
             {
