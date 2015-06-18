@@ -31,18 +31,6 @@ namespace Vector
             }
         }
 
-        public double Angle {
-            get
-            {
-                double angle = Math.Acos(Vector2.Dot(Direction, Vector2.UnitX) / Direction.Length());
-                if (Direction.Y < 0)
-                {
-                    angle *= -1;
-                }
-                return angle;
-            }
-        }
-
         int Scale;
         int Thickness;
 
@@ -57,6 +45,15 @@ namespace Vector
             base.Initialize(position);
             Scale = scale;
             Thickness = thickness;
+        }
+
+        public double Angle() {
+            double angle = Math.Acos(Vector2.Dot(Direction, Vector2.UnitX) / Direction.Length());
+            if (Direction.Y < 0)
+            {
+                angle *= -1;
+            }
+            return angle;
         }
     }
 }
