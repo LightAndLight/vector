@@ -17,7 +17,14 @@ namespace Vector
         Wall Floor;
         SpriteFont Pixel;
         Texture2D Cursor;
+        InputManager InputManager;
         ArrayList MovementStack;
+
+        enum Direction
+        {
+            Left,
+            Right
+        }
 
         int originX;
         int originY;
@@ -25,18 +32,18 @@ namespace Vector
         int screenHeight;
 
         bool paused;
-        bool pauseReady;
+        bool PauseReady;
 
         public MainGame()
         {
             Graphics = new GraphicsDeviceManager(this);
             Player = new Player(ref Graphics);
             Floor = new Wall(ref Graphics);
-
+            InputManager = new InputManager();
             MovementStack = new ArrayList();
 
             paused = false;
-            pauseReady = true;
+            PauseReady = true;
 
             Content.RootDirectory = "Content";
         }
@@ -108,52 +115,55 @@ namespace Vector
 
         private void HandleInputs()
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-
-            if (Keyboard.GetState().IsKeyUp(Keys.P))
+            if (InputManager.Exit())
             {
-                pauseReady = true;
+                Exit();
             }
 
-            if (Keyboard.GetState().IsKeyDown(Keys.P) && pauseReady)
+            if (InputManager.PausePressed() && PauseReady)
             {
+                PauseReady = false;
+
                 if (paused && !Player.Arrow.Dragging)
                 {
                     Player.Velocity = Player.Arrow.Direction;
                 }
 
                 paused = !paused;
-                pauseReady = false;
             }
 
-            if (Keyboard.GetState().IsKeyDown(Keys.A) && !MovementStack.Contains(Keys.A))
+            if (InputManager.PauseReleased())
             {
-                MovementStack.Add(Keys.A);
+                PauseReady = true;
+            }
+
+            if (InputManager.LeftPressed() && !MovementStack.Contains(Direction.Left)) 
+            {
+                MovementStack.Add(Direction.Left);
             } 
-            else if (Keyboard.GetState().IsKeyUp(Keys.A) && MovementStack.Contains(Keys.A))
+            else if (InputManager.LeftReleased()) 
             {
-                MovementStack.Remove(Keys.A);
+                MovementStack.Remove(Direction.Left);
             }
 
-            if (Keyboard.GetState().IsKeyDown(Keys.D) && !MovementStack.Contains(Keys.D))
+            if (InputManager.RightPressed() && !MovementStack.Contains(Direction.Right)) 
             {
-                MovementStack.Add(Keys.D);
-            }
-            else if (Keyboard.GetState().IsKeyUp(Keys.D) && MovementStack.Contains(Keys.D))
+                MovementStack.Add(Direction.Right);
+            } 
+            else if (InputManager.RightReleased()) 
             {
-                MovementStack.Remove(Keys.D);
+                MovementStack.Remove(Direction.Right);
             }
 
-            if (MovementStack.Count > 0)
+            if (MovementStack.Count > 0) 
             {
-                switch ((Keys) MovementStack[MovementStack.Count-1])
+                switch ((Direction) MovementStack[MovementStack.Count - 1]) 
                 {
-                    case Keys.A:
+                    case Direction.Left:
                         Player.MoveLeft();
                         break;
 
-                    case Keys.D:
+                    case Direction.Right:
                         Player.MoveRight();
                         break;
                 }
@@ -161,12 +171,12 @@ namespace Vector
 
             if (Floor.Bounds.Top <= Player.Bounds.Bottom)
             {
-                if (MovementStack.Count == 0)
+                if (!InputManager.LeftPressed() && !InputManager.RightPressed())
                 {
                     Player.Stop();
                 }
 
-                if (Keyboard.GetState().IsKeyDown(Keys.Space))
+                if (InputManager.Jump())
                 {
                     Player.Jump();
                 }
@@ -175,17 +185,17 @@ namespace Vector
             if (paused)
             {
                 Rectangle arrowEnd = new Rectangle((int)Player.Arrow.End.X-10, (int)Player.Arrow.End.Y-10, 20, 20);
-                if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+                if (InputManager.MouseDown())
                 {
-                    if (arrowEnd.Contains(Mouse.GetState().Position) && !Player.Arrow.Dragging)
+                    if (arrowEnd.Contains(InputManager.MousePosition()) && !Player.Arrow.Dragging)
                     {
                         Player.Arrow.Dragging = true;
                     } else if (Player.Arrow.Dragging) {
-                        Player.Arrow.End = Mouse.GetState().Position;
+                        Player.Arrow.End = InputManager.MousePosition();
                     } 
                 }
 
-                if (Mouse.GetState().LeftButton == ButtonState.Released && Player.Arrow.Dragging)
+                if (InputManager.MouseUp() && Player.Arrow.Dragging)
                 {
                     Player.Arrow.Dragging = false;
                 }
