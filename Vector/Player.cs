@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Vector
 {
-    class Player : Sprite, Vector.IMove, Vector.IJump, Vector.ICollide
+    class Player : AnimatedSprite, Vector.IMove, Vector.IJump, Vector.ICollide
     {
         public Vector2 Velocity { get; set; }
         public Arrow Arrow { get; set; }
@@ -26,7 +26,7 @@ namespace Vector
         public void Initialize(Point position, int moveSpeed, int jumpSpeed)
         {
             base.Initialize(position);
-            Arrow.Initialize(position, 2, 8);
+            Arrow.Initialize(position, 1, 8);
 
             Velocity = Vector2.Zero;
             MoveSpeed = moveSpeed;
@@ -55,8 +55,10 @@ namespace Vector
             GravityOn = true;
         }
 
-        public void Update()
+        public override void Update()
         {
+            base.Update();
+
             Velocity = new Vector2(Velocity.X, Velocity.Y + (GravityOn ? Gravity : 0));
             Position = new Point((int)(Position.X + Velocity.X), (int)(Position.Y + Velocity.Y));
 
@@ -78,23 +80,23 @@ namespace Vector
             }
         }
 
-        public void Collide(Viewport viewport)
+        public void Collide(RenderTarget2D renderTarget)
         {
-            if (Bounds.Left + Velocity.X < viewport.Bounds.Left)
+            if (Bounds.Left + Velocity.X < renderTarget.Bounds.Left)
             {
                 Velocity = new Vector2(0, Velocity.Y);
-                Position = new Point(viewport.Bounds.Left, Position.Y);
+                Position = new Point(renderTarget.Bounds.Left, Position.Y);
             }
-            else if (Bounds.Right + Velocity.X > viewport.Bounds.Right)
+            else if (Bounds.Right + Velocity.X > renderTarget.Bounds.Right)
             {
                 Velocity = new Vector2(0, Velocity.Y);
-                Position = new Point(viewport.Bounds.Right - Bounds.Width, Position.Y);
+                Position = new Point(renderTarget.Bounds.Right - Bounds.Width, Position.Y);
             }
 
-            if (Bounds.Top + Velocity.Y < viewport.Bounds.Top)
+            if (Bounds.Top + Velocity.Y < renderTarget.Bounds.Top)
             {
                 Velocity = new Vector2(Velocity.X, 0);
-                Position = new Point(Position.X, viewport.Bounds.Top);
+                Position = new Point(Position.X, renderTarget.Bounds.Top);
             }
         }
     }
