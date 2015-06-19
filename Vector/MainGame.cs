@@ -104,10 +104,8 @@ namespace Vector
             if (!paused)
             {
                 Player.Collide<Wall>(Floor);
+                Player.Collide(GraphicsDevice.Viewport);
                 Player.Update();
-
-                Player.Arrow.Direction = Player.Velocity;
-                Player.Arrow.Position = new Point(Player.Position.X+Player.Bounds.Width/2,Player.Position.Y+Player.Bounds.Height/2);
             }
 
             base.Update(gameTime);
@@ -187,8 +185,6 @@ namespace Vector
                 Rectangle arrowEnd = new Rectangle((int)Player.Arrow.End.X-10, (int)Player.Arrow.End.Y-10, 20, 20);
                 if (InputManager.MouseDown())
                 {
-                    Console.WriteLine("End: " + Player.Arrow.End);
-                    Console.WriteLine("Mouse: " + InputManager.MousePosition());
                     if (arrowEnd.Contains(InputManager.MousePosition()) && !Player.Arrow.Dragging)
                     {
                         Player.Arrow.Dragging = true;
@@ -222,7 +218,7 @@ namespace Vector
 
             if (paused)
             {
-                Player.Arrow.DrawRotated(SpriteBatch,(float)Player.Arrow.Angle,Vector2.Zero);
+                Player.Arrow.DrawRotated(SpriteBatch,(float)Player.Arrow.Angle(),Vector2.Zero);
 
                 SpriteBatch.DrawString(Pixel, "PAUSED", new Vector2(0), Color.Black);
                 SpriteBatch.Draw(Cursor, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), Color.Black);
