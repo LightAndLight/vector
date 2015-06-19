@@ -9,6 +9,15 @@ namespace Vector
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
+    /// 
+    public enum Direction
+    {
+        Left,
+        Right,
+        Up,
+        Down
+    }
+
     public class MainGame : Game
     {
         GraphicsDeviceManager Graphics;
@@ -19,12 +28,7 @@ namespace Vector
         Texture2D Cursor;
         InputManager InputManager;
         ArrayList MovementStack;
-
-        enum Direction
-        {
-            Left,
-            Right
-        }
+        RenderTarget2D RenderTarget;
 
         int originX;
         int originY;
@@ -37,8 +41,11 @@ namespace Vector
         public MainGame()
         {
             Graphics = new GraphicsDeviceManager(this);
+            Graphics.PreferMultiSampling = false;
+
             Player = new Player(ref Graphics);
             Floor = new Wall(ref Graphics);
+
             InputManager = new InputManager();
             MovementStack = new ArrayList();
 
@@ -61,8 +68,10 @@ namespace Vector
             screenWidth = GraphicsDevice.Viewport.TitleSafeArea.Width;
             screenHeight = GraphicsDevice.Viewport.TitleSafeArea.Height;
 
-            Player.Initialize(new Point(originX - 5, originY - 448), 5, 10);
-            Floor.Initialize(new Rectangle(originX, originY+screenHeight-5,screenWidth,5));
+            RenderTarget = new RenderTarget2D(GraphicsDevice, screenWidth / 2, screenHeight / 2);
+
+            Player.Initialize(new Point(0,0), 2, 8);
+            Floor.Initialize(new Rectangle(0, screenHeight / 2 - 5, screenWidth / 2, 5));
 
             base.Initialize();
         }
@@ -77,8 +86,12 @@ namespace Vector
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             Cursor = Content.Load<Texture2D>("Cursor");
             Pixel = Content.Load<SpriteFont>("Pixel");
-            Player.LoadTexture(Content,"man");
+
+            Player.LoadTexture(Content, "man", new Rectangle(0, 0, 7, 19));
+            Player.AddToLibrary("turnleft",new int[] { 0, 1, 2, 3 });
+            Player.AddToLibrary("turnright",new int[] { 0, 11, 10, 9 });
             Player.Arrow.LoadTexture(Color.Red);
+
             Floor.LoadTexture(Content,"dirt");
         }
 
@@ -104,7 +117,7 @@ namespace Vector
             if (!paused)
             {
                 Player.Collide<Wall>(Floor);
-                Player.Collide(GraphicsDevice.Viewport);
+                Player.Collide(RenderTarget);
                 Player.Update();
             }
 
@@ -138,6 +151,7 @@ namespace Vector
             if (InputManager.LeftPressed() && !MovementStack.Contains(Direction.Left)) 
             {
                 MovementStack.Add(Direction.Left);
+                Player.PlayAnimation("turnleft");
             } 
             else if (InputManager.LeftReleased()) 
             {
@@ -147,6 +161,7 @@ namespace Vector
             if (InputManager.RightPressed() && !MovementStack.Contains(Direction.Right)) 
             {
                 MovementStack.Add(Direction.Right);
+                Player.PlayAnimation("turnright");
             } 
             else if (InputManager.RightReleased()) 
             {
@@ -206,12 +221,13 @@ namespace Vector
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.SetRenderTarget(RenderTarget);
+            GraphicsDevice.Clear(Color.White);
 
             SpriteBatch.Begin(
                 SpriteSortMode.FrontToBack, 
                 null, 
-                SamplerState.LinearWrap,
+                SamplerState.AnisotropicWrap,
                 null, 
                 RasterizerState.CullNone
                 );
@@ -227,6 +243,11 @@ namespace Vector
             Player.Draw(SpriteBatch);
             Floor.DrawTiled(SpriteBatch);
 
+            SpriteBatch.End();
+
+            GraphicsDevice.SetRenderTarget(null);
+            SpriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null);
+            SpriteBatch.Draw(RenderTarget, new Rectangle(0, 0, screenWidth, screenHeight), Color.White);
             SpriteBatch.End();
 
             base.Draw(gameTime);
