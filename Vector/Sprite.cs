@@ -47,7 +47,7 @@ namespace Vector
             Bounds = new Rectangle(Bounds.X, Bounds.Y, Texture.Width, Texture.Height);
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public virtual void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(Texture, Bounds, null, Color.White, 0, Vector2.Zero, SpriteEffects.None, 0);
         }
