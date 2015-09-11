@@ -7,7 +7,6 @@ namespace Vector
 {
     class Sprite
     {
-        GraphicsDeviceManager GraphicsDeviceManager; 
         public Rectangle Bounds { get; set; }
         public Texture2D Texture { get; set; }
 
