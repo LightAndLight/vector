@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -27,7 +28,7 @@ namespace Vector
         SpriteFont Pixel;
         Texture2D Cursor;
         InputManager InputManager;
-        ArrayList MovementStack;
+        LinkedList<Direction> MovementStack;
         RenderTarget2D RenderTarget;
 
         int originX;
@@ -51,7 +52,7 @@ namespace Vector
             Floor = new Wall();
 
             InputManager = new InputManager();
-            MovementStack = new ArrayList();
+            MovementStack = new LinkedList<Direction>();
 
             paused = false;
             PauseReady = true;
@@ -157,7 +158,7 @@ namespace Vector
 
             if (InputManager.LeftPressed() && !MovementStack.Contains(Direction.Left)) 
             {
-                MovementStack.Add(Direction.Left);
+                MovementStack.AddFirst(Direction.Left);
                 Player.PlayAnimation("turnleft");
             } 
             else if (InputManager.LeftReleased()) 
@@ -167,7 +168,7 @@ namespace Vector
 
             if (InputManager.RightPressed() && !MovementStack.Contains(Direction.Right)) 
             {
-                MovementStack.Add(Direction.Right);
+                MovementStack.AddFirst(Direction.Right);
                 Player.PlayAnimation("turnright");
             } 
             else if (InputManager.RightReleased()) 
@@ -177,7 +178,7 @@ namespace Vector
 
             if (MovementStack.Count > 0) 
             {
-                switch ((Direction) MovementStack[MovementStack.Count - 1]) 
+                switch (MovementStack.First.Value)
                 {
                     case Direction.Left:
                         Player.MoveLeft();
