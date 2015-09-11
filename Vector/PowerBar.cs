@@ -52,7 +52,6 @@ namespace Vector
                         spriteBatch.Draw(Texture, new Rectangle(Position.X,Position.Y+80,Bounds.Width,topDrawAmount), 
                             new Rectangle(0,20,Bounds.Width,topDrawAmount), Color.White, 
                             0, Vector2.Zero, SpriteEffects.None, 0);
-                        Console.WriteLine(topDrawAmount + middleDrawAmount + bottomDrawAmount);
                     }
 
                     spriteBatch.Draw(Texture, new Rectangle(Position.X,Position.Y+10,Bounds.Width,middleDrawAmount), 
