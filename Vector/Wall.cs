@@ -7,8 +7,6 @@ namespace Vector
 {
     class Wall : Sprite, Vector.ICollide
     {
-        public Wall(ref GraphicsDeviceManager graphicsDeviceManager) : base(ref graphicsDeviceManager) { }
-
         public void Initialize(Rectangle bounds)
         {
             Bounds = bounds;

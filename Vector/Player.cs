@@ -16,11 +16,10 @@ namespace Vector
         int JumpSpeed;
         int Gravity;
 
-        public Player(ref GraphicsDeviceManager graphicsDeviceManager)
-            : base(ref graphicsDeviceManager)
+        public Player()
         {
-            Arrow = new Arrow(ref graphicsDeviceManager);
-            PowerBar = new PowerBar(ref graphicsDeviceManager);
+            Arrow = new Arrow();
+            PowerBar = new PowerBar();
             Gravity = 1;
             GravityOn = true;
         }

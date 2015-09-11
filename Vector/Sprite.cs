@@ -24,9 +24,8 @@ namespace Vector
             }
         }
 
-        public Sprite(ref GraphicsDeviceManager graphicsDevice)
+        public Sprite()
         {
-            GraphicsDeviceManager = graphicsDevice;
             Bounds = new Rectangle();
         }
 
@@ -35,9 +34,9 @@ namespace Vector
             Position = position;
         }
 
-        public void LoadTexture(Color color)
+        public void LoadTexture(GraphicsDevice graphicsDevice, Color color)
         {
-            Texture = new Texture2D(GraphicsDeviceManager.GraphicsDevice, 1, 1);
+            Texture = new Texture2D(graphicsDevice, 1, 1);
             Texture.SetData<Color>(new Color[] { color });
         }
 

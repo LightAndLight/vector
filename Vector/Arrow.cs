@@ -34,8 +34,7 @@ namespace Vector
         int Scale;
         int Thickness;
 
-        public Arrow(ref GraphicsDeviceManager graphicsDeviceManager)
-            : base(ref graphicsDeviceManager)
+        public Arrow()
         {
             Dragging = false;
         }

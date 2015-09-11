@@ -47,8 +47,8 @@ namespace Vector
             Graphics = new GraphicsDeviceManager(this);
             Graphics.PreferMultiSampling = false;
 
-            Player = new Player(ref Graphics);
-            Floor = new Wall(ref Graphics);
+            Player = new Player();
+            Floor = new Wall();
 
             InputManager = new InputManager();
             MovementStack = new ArrayList();
@@ -94,7 +94,7 @@ namespace Vector
             Player.LoadTexture(Content, "man", new Rectangle(0, 0, 7, 19));
             Player.AddToLibrary("turnleft",new int[] { 0, 1, 2, 3 });
             Player.AddToLibrary("turnright",new int[] { 0, 11, 10, 9 });
-            Player.Arrow.LoadTexture(Color.Red);
+            Player.Arrow.LoadTexture(GraphicsDevice, Color.Red);
             Player.PowerBar.LoadTexture(Content, "bar");
 
             Floor.LoadTexture(Content,"dirt");

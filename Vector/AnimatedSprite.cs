@@ -25,7 +25,7 @@ namespace Vector
         }
         bool Playing;
 
-        public AnimatedSprite(ref GraphicsDeviceManager graphicsDeviceManager) : base(ref graphicsDeviceManager) 
+        public AnimatedSprite()
         {
             Library = new Dictionary<string, int[]>();
             CurrentAnimation = new int[1];

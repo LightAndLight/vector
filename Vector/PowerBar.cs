@@ -28,7 +28,7 @@ namespace Vector
             }
         }
 
-        public PowerBar(ref GraphicsDeviceManager graphicsDeviceManager) : base(ref graphicsDeviceManager)
+        public PowerBar()
         {
             TotalCapacity = 100;
             CurrentCapacity = TotalCapacity;
