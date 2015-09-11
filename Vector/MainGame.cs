@@ -11,14 +11,6 @@ namespace Vector
     /// This is the main type for your game.
     /// </summary>
     /// 
-    public enum Direction
-    {
-        Left,
-        Right,
-        Up,
-        Down
-    }
-
     public class MainGame : Game
     {
         GraphicsDeviceManager Graphics;
@@ -28,7 +20,6 @@ namespace Vector
         SpriteFont Pixel;
         Texture2D Cursor;
         InputManager InputManager;
-        LinkedList<Direction> MovementStack;
         RenderTarget2D RenderTarget;
 
         int originX;
@@ -39,7 +30,6 @@ namespace Vector
         float CapacityUsage = 0.5f;
 
         bool paused;
-        bool PauseReady;
         Vector2 PreviousEnd;
         int PreviousCapacity;
 
@@ -51,11 +41,9 @@ namespace Vector
             Player = new Player();
             Floor = new Wall();
 
-            InputManager = new InputManager();
-            MovementStack = new LinkedList<Direction>();
-
             paused = false;
-            PauseReady = true;
+
+            InputManager = new InputManager();
 
             Content.RootDirectory = "Content";
         }
@@ -117,7 +105,7 @@ namespace Vector
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-
+            InputManager.Update();
             HandleInputs();
 
             if (!paused)
@@ -132,95 +120,66 @@ namespace Vector
 
         private void HandleInputs()
         {
-            if (InputManager.Exit())
+            if (InputManager.Exit)
             {
                 Exit();
             }
 
-            if (InputManager.PausePressed() && PauseReady)
+
+            if (InputManager.MoveLeft)
             {
-                PauseReady = false;
-                PreviousEnd = Player.Arrow.End;
-                PreviousCapacity = Player.PowerBar.CurrentCapacity;
-
-                if (paused && !Player.Arrow.Dragging)
-                {
-                    Player.Velocity = Player.Arrow.Direction;
-                }
-
-                paused = !paused;
+                Player.MoveLeft();
             }
-
-            if (InputManager.PauseReleased())
+            else if (InputManager.MoveRight)
             {
-                PauseReady = true;
-            }
-
-            if (InputManager.LeftPressed() && !MovementStack.Contains(Direction.Left)) 
-            {
-                MovementStack.AddFirst(Direction.Left);
-                Player.PlayAnimation("turnleft");
-            } 
-            else if (InputManager.LeftReleased()) 
-            {
-                MovementStack.Remove(Direction.Left);
-            }
-
-            if (InputManager.RightPressed() && !MovementStack.Contains(Direction.Right)) 
-            {
-                MovementStack.AddFirst(Direction.Right);
-                Player.PlayAnimation("turnright");
-            } 
-            else if (InputManager.RightReleased()) 
-            {
-                MovementStack.Remove(Direction.Right);
-            }
-
-            if (MovementStack.Count > 0) 
-            {
-                switch (MovementStack.First.Value)
-                {
-                    case Direction.Left:
-                        Player.MoveLeft();
-                        break;
-
-                    case Direction.Right:
-                        Player.MoveRight();
-                        break;
-                }
+                Player.MoveRight();
             }
 
             if (Floor.Bounds.Top <= Player.Bounds.Bottom)
             {
-                if (!InputManager.LeftPressed() && !InputManager.RightPressed())
+                if (!InputManager.MoveLeft && !InputManager.MoveRight)
+
                 {
                     Player.Stop();
                 }
 
-                if (InputManager.Jump())
+                if (InputManager.Jump)
                 {
                     Player.Jump();
                 }
             }
 
+            if (InputManager.TogglePause())
+            {
+                if (!paused)
+                {
+                    PreviousEnd = Player.Arrow.End;
+                    PreviousCapacity = Player.PowerBar.CurrentCapacity;
+                }
+                paused = !paused;
+            }
+
             if (paused)
             {
                 Rectangle arrowEnd = new Rectangle((int)Player.Arrow.End.X-10, (int)Player.Arrow.End.Y-10, 20, 20);
-                if (InputManager.MouseDown())
+                if (InputManager.MouseDown && arrowEnd.Contains(InputManager.MousePosition) && !Player.Arrow.Dragging)
                 {
-                    if (arrowEnd.Contains(InputManager.MousePosition()) && !Player.Arrow.Dragging)
-                    {
-                        Player.Arrow.Dragging = true;
-                    } else if (Player.Arrow.Dragging) {
-                        Player.Arrow.End = InputManager.MousePosition().ToVector2();
-                        Player.PowerBar.CurrentCapacity = 
-                            (int)(PreviousCapacity - CapacityUsage * Vector2.Distance(PreviousEnd, Player.Arrow.End));
-                    } 
+                    Player.Arrow.Dragging = true;
                 }
-
-                if (InputManager.MouseUp() && Player.Arrow.Dragging)
+                else if (InputManager.MouseUp)
                 {
                     Player.Arrow.Dragging = false;
+                }
+
+                if (Player.Arrow.Dragging)
+                {
+                    Player.Arrow.End = InputManager.MousePosition.ToVector2();
+                    Player.PowerBar.CurrentCapacity =
+                        (int)(PreviousCapacity - CapacityUsage * Vector2.Distance(PreviousEnd, Player.Arrow.End));
+                }
+                else
+                {
+                    Player.Velocity = Player.Arrow.Direction;
                 }
             }
         }

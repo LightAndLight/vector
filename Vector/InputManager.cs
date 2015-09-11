@@ -1,62 +1,169 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace Vector
 {
-    class InputManager
+    public class InputManager : Vector.IUpdate
     {
-        public bool LeftPressed()
+        private bool PauseReady;
+
+        enum Direction
         {
-            return Keyboard.GetState().IsKeyDown(Keys.A) || Keyboard.GetState().IsKeyDown(Keys.Left);
+            Left,
+            Right,
+            Up,
+            Down
         }
 
-        public bool LeftReleased() {
-            return Keyboard.GetState().IsKeyUp(Keys.A) && Keyboard.GetState().IsKeyUp(Keys.Left);
-        }
-
-        public bool RightPressed()
+        public bool MoveLeft
         {
-            return Keyboard.GetState().IsKeyDown(Keys.D) || Keyboard.GetState().IsKeyDown(Keys.Right);
+            get
+            {
+                return MovementStack.Count > 0 && MovementStack.First.Value == Direction.Left;
+            }
         }
 
-        public bool RightReleased() {
-             return Keyboard.GetState().IsKeyUp(Keys.D) && Keyboard.GetState().IsKeyUp(Keys.Right);
-        }
-
-        public bool Jump()
+        public bool MoveRight
         {
-            return Keyboard.GetState().IsKeyDown(Keys.W) || Keyboard.GetState().IsKeyDown(Keys.Up);
+            get
+            {
+                return MovementStack.Count > 0 && MovementStack.First.Value == Direction.Right;
+            }
         }
 
-        public bool PausePressed()
+        public bool Jump
         {
-            return Keyboard.GetState().IsKeyDown(Keys.Space);
+            get 
+            {
+                return Keyboard.GetState().IsKeyDown(Keys.W) || Keyboard.GetState().IsKeyDown(Keys.Up);
+            }
         }
 
-        public bool PauseReleased()
+        public bool MouseDown
         {
-            return Keyboard.GetState().IsKeyUp(Keys.Space);
+            get {
+                return Mouse.GetState().LeftButton == ButtonState.Pressed;
+            }
         }
 
-        public bool Exit()
+        public bool MouseUp
         {
-            return Keyboard.GetState().IsKeyDown(Keys.Escape);
+            get
+            {
+                return Mouse.GetState().LeftButton == ButtonState.Released;
+            }
         }
 
-        public bool MouseDown()
+        public Point MousePosition
         {
-            return Mouse.GetState().LeftButton == ButtonState.Pressed;
+            get
+            {
+                return Mouse.GetState().Position;
+            }
         }
 
-        public bool MouseUp()
+        public bool Exit
         {
-            return Mouse.GetState().LeftButton == ButtonState.Released;
+            get
+            {
+                return Keyboard.GetState().IsKeyDown(Keys.Escape);
+            }
         }
 
-        public Point MousePosition()
+        private bool PausePressed
         {
-            return Mouse.GetState().Position;
+            get
+            {
+                return Keyboard.GetState().IsKeyDown(Keys.Space);
+            }
         }
+
+        private bool PauseReleased
+        {
+            get
+            {
+                return Keyboard.GetState().IsKeyUp(Keys.Space);
+            }
+        }
+
+        private bool LeftPressed
+        {
+            get
+            {
+                return Keyboard.GetState().IsKeyDown(Keys.A) || Keyboard.GetState().IsKeyDown(Keys.Left);
+            }
+        }
+
+        private bool LeftReleased
+        {
+            get
+            {
+                return Keyboard.GetState().IsKeyUp(Keys.A) && Keyboard.GetState().IsKeyUp(Keys.Left);
+            }
+        }
+
+        private bool RightPressed
+        {
+            get
+            {
+                return Keyboard.GetState().IsKeyDown(Keys.D) || Keyboard.GetState().IsKeyDown(Keys.Right);
+            }
+        }
+
+        private bool RightReleased
+        {
+            get
+            {
+                return Keyboard.GetState().IsKeyUp(Keys.D) && Keyboard.GetState().IsKeyUp(Keys.Right);
+            }
+        }
+
+        LinkedList<Direction> MovementStack;
+
+        public InputManager()
+        {
+            MovementStack = new LinkedList<Direction>();
+            PauseReady = true;
+        }
+
+        public void Update()
+        {
+            if (LeftPressed && !MovementStack.Contains(Direction.Left))
+            {
+                MovementStack.AddFirst(Direction.Left);
+            }
+            else if (LeftReleased && MovementStack.Contains(Direction.Left))
+            {
+                MovementStack.Remove(Direction.Left);
+            }
+
+            if (RightPressed && !MovementStack.Contains(Direction.Right))
+            {
+                MovementStack.AddFirst(Direction.Right);
+            }
+            else if (RightReleased && MovementStack.Contains(Direction.Right))
+            {
+                MovementStack.Remove(Direction.Right);
+            }
+
+        }
+
+        public bool TogglePause()
+        {
+            if (PausePressed && PauseReady)
+            {
+                PauseReady = false;
+                return true;
+            }
+            else if (PauseReleased)
+            {
+                PauseReady = true;
+            }
+
+            return false;
+        }
+
     }
 }
