@@ -35,8 +35,12 @@ namespace Vector
         int screenWidth;
         int screenHeight;
 
+        float CapacityUsage = 0.5f;
+
         bool paused;
         bool PauseReady;
+        Vector2 PreviousEnd;
+        int PreviousCapacity;
 
         public MainGame()
         {
@@ -91,6 +95,7 @@ namespace Vector
             Player.AddToLibrary("turnleft",new int[] { 0, 1, 2, 3 });
             Player.AddToLibrary("turnright",new int[] { 0, 11, 10, 9 });
             Player.Arrow.LoadTexture(Color.Red);
+            Player.PowerBar.LoadTexture(Content, "bar");
 
             Floor.LoadTexture(Content,"dirt");
         }
@@ -134,6 +139,8 @@ namespace Vector
             if (InputManager.PausePressed() && PauseReady)
             {
                 PauseReady = false;
+                PreviousEnd = Player.Arrow.End;
+                PreviousCapacity = Player.PowerBar.CurrentCapacity;
 
                 if (paused && !Player.Arrow.Dragging)
                 {
@@ -205,6 +212,8 @@ namespace Vector
                         Player.Arrow.Dragging = true;
                     } else if (Player.Arrow.Dragging) {
                         Player.Arrow.End = InputManager.MousePosition().ToVector2();
+                        Player.PowerBar.CurrentCapacity = 
+                            (int)(PreviousCapacity - CapacityUsage * Vector2.Distance(PreviousEnd, Player.Arrow.End));
                     } 
                 }
 
@@ -235,6 +244,7 @@ namespace Vector
             if (paused)
             {
                 Player.Arrow.DrawRotated(SpriteBatch,(float)Player.Arrow.Angle(),Vector2.Zero);
+                Player.PowerBar.Draw(SpriteBatch);
 
                 SpriteBatch.DrawString(Pixel, "PAUSED", new Vector2(0), Color.Black);
                 SpriteBatch.Draw(Cursor, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), Color.Black);

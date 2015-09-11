@@ -9,6 +9,7 @@ namespace Vector
     {
         public Vector2 Velocity { get; set; }
         public Arrow Arrow { get; set; }
+        public PowerBar PowerBar { get; set; }
         public bool GravityOn { get; set; }
 
         int MoveSpeed;
@@ -19,6 +20,7 @@ namespace Vector
             : base(ref graphicsDeviceManager)
         {
             Arrow = new Arrow(ref graphicsDeviceManager);
+            PowerBar = new PowerBar(ref graphicsDeviceManager);
             Gravity = 1;
             GravityOn = true;
         }
@@ -27,6 +29,7 @@ namespace Vector
         {
             base.Initialize(position);
             Arrow.Initialize(position, 1, 8);
+            PowerBar.Initialize(new Point(380,10));
 
             Velocity = Vector2.Zero;
             MoveSpeed = moveSpeed;
