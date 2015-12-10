@@ -23,6 +23,7 @@ namespace Vector
 
         Player Player;
         Arrow Arrow;
+        PowerBar PowerBar;
         LinkedList<Sprite> Sprites;
 
         int originX;
@@ -32,6 +33,10 @@ namespace Vector
 
         bool paused;
 
+        const int PLAYER_MOVE_SPEED = 2;
+        const int PLAYER_JUMP_SPEED = 8;
+        const int POWER_BAR_CAPACITY = 100;
+
         public MainGame()
         {
             GraphicsManager = new GraphicsDeviceManager(this);
@@ -39,11 +44,14 @@ namespace Vector
 
             paused = false;
 
-            Player = new Player("man", new Point(5,5), 2, 8);
-            Arrow = new Arrow("arrow", Player.Bounds.Location, Player.Velocity);
+            Player = new Player("man", new Point(5,5), PLAYER_MOVE_SPEED, PLAYER_JUMP_SPEED);
+            Arrow = new Arrow("arrow", Player.Bounds.Location, 10, Player.Velocity);
+            PowerBar = new PowerBar("barborder", new Point(380, 10), "bar", POWER_BAR_CAPACITY);
+
             Sprites = new LinkedList<Sprite>();
             Sprites.AddLast(Player);
             Sprites.AddLast(Arrow);
+            Sprites.AddLast(PowerBar);
 
             InputManager = new InputManager();
 
@@ -104,10 +112,30 @@ namespace Vector
                     Player.Jump();
                 }
             }
+            else
+            {
+                Rectangle endRegion = new Rectangle(Arrow.EndPoint.X - 10, Arrow.EndPoint.Y - 10, 20, 20);
+                if (!Arrow.Dragging && InputManager.MouseDown && endRegion.Contains(InputManager.MousePosition))
+                {
+                    Arrow.StartDragging(Player.Velocity);
+                }
+                else if (Arrow.Dragging && InputManager.MouseUp)
+                {
+                    Arrow.StopDragging();
+                    Player.Velocity = Arrow.Velocity;
+                }
+            }
 
             if (InputManager.TogglePause())
             {
-                paused = !paused;
+                PowerBar.Visible = Arrow.Visible = paused = !paused;
+                PowerBar.TogglePause();
+            }
+
+            if (Arrow.Dragging)
+            {
+                Arrow.EndPoint = InputManager.MousePosition;
+                PowerBar.CurrentLevel -= Arrow.Change;
             }
         }
 
@@ -126,6 +154,7 @@ namespace Vector
             {
                 Player.CollideWithScreen(RenderTarget);
                 Player.Update();
+
                 Arrow.Velocity = Player.Velocity;
                 Arrow.Bounds = new Rectangle(Player.Bounds.Center, Arrow.Bounds.Size);
             }

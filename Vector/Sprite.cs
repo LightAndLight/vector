@@ -23,7 +23,7 @@ namespace Vector
             Visible = true;
         }
 
-        public void LoadTexture(ContentManager contentManager)
+        public virtual void LoadTexture(ContentManager contentManager)
         {
             Texture = contentManager.Load<Texture2D>(TextureName);
             Bounds = new Rectangle(Bounds.X, Bounds.Y, Texture.Width, Texture.Height);
