@@ -38,6 +38,7 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Arrow.cs" />
     <Compile Include="Sprite.cs" />
     <Compile Include="InputManager.cs" />
     <Compile Include="IJump.cs" />

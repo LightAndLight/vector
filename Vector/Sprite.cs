@@ -11,10 +11,10 @@ namespace Vector
     class Sprite
     {
         public MainGame Game { get; private set;}
-        public Rectangle Bounds { get; protected set; }
+        public Rectangle Bounds { get; set; }
         public bool Visible { get; set; }
         private string TextureName;
-        private Texture2D Texture;
+        protected Texture2D Texture;
 
         public Sprite(string textureName, Point position)
         {

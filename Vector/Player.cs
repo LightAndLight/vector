@@ -58,7 +58,6 @@ namespace Vector
                 Bounds.Y + (int)Velocity.Y,
                 Bounds.Width,
                 Bounds.Height);
-            Console.Write(base.Bounds.Location);
         }
 
         public void CollideWithScreen(RenderTarget2D renderTarget)

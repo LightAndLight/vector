@@ -22,6 +22,7 @@ namespace Vector
         public RenderTarget2D RenderTarget { get; private set; }
 
         Player Player;
+        Arrow Arrow;
         LinkedList<Sprite> Sprites;
 
         int originX;
@@ -39,8 +40,10 @@ namespace Vector
             paused = false;
 
             Player = new Player("man", new Point(5,5), 2, 8);
+            Arrow = new Arrow("arrow", Player.Bounds.Location, Player.Velocity);
             Sprites = new LinkedList<Sprite>();
             Sprites.AddLast(Player);
+            Sprites.AddLast(Arrow);
 
             InputManager = new InputManager();
 
@@ -123,6 +126,8 @@ namespace Vector
             {
                 Player.CollideWithScreen(RenderTarget);
                 Player.Update();
+                Arrow.Velocity = Player.Velocity;
+                Arrow.Bounds = new Rectangle(Player.Bounds.Center, Arrow.Bounds.Size);
             }
 
             base.Update(gameTime);

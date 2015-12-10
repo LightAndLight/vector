@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Vector
 {
-    public class InputManager : Vector.IUpdate
+    public class InputManager 
     {
         private bool PauseReady;
 
