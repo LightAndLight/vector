@@ -81,8 +81,6 @@ namespace Vector
             Pixel = Content.Load<SpriteFont>("Pixel");
 
             Player.LoadTexture(Content, "man", new Rectangle(0, 0, 7, 19));
-            Player.AddToLibrary("turnleft",new int[] { 0, 1, 2, 3 });
-            Player.AddToLibrary("turnright",new int[] { 0, 11, 10, 9 });
             Player.Arrow.LoadTexture(GraphicsDevice, Color.Red);
             Player.PowerBar.LoadTexture(Content, "bar");
 

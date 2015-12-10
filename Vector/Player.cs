@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Vector
 {
-    class Player : AnimatedSprite, Vector.IMove, Vector.IJump, Vector.ICollide
+    class Player : Sprite, Vector.IMove, Vector.IJump, Vector.ICollide
     {
         public Vector2 Velocity { get; set; }
         public Arrow Arrow { get; set; }

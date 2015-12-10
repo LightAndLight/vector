@@ -38,7 +38,6 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="AnimatedSprite.cs" />
     <Compile Include="Arrow.cs" />
     <Compile Include="ICollide.cs" />
     <Compile Include="InputManager.cs" />
