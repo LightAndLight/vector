@@ -1,63 +1,45 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Vector
 {
     class Sprite
     {
-        public Rectangle Bounds { get; set; }
-        public Texture2D Texture { get; set; }
+        public MainGame Game { get; private set;}
+        public Rectangle Bounds { get; protected set; }
+        public bool Visible { get; set; }
+        private string TextureName;
+        private Texture2D Texture;
 
-        public Point Position
+        public Sprite(string textureName, Point position)
         {
-            get
-            {
-                return Bounds.Location;
-            }
-
-            set
-            {
-                Bounds = new Rectangle(value.X, value.Y, Bounds.Width, Bounds.Height);
-            }
+            Bounds = new Rectangle(position, new Point(0, 0));
+            TextureName = textureName;
+            Visible = true;
         }
 
-        public Sprite()
+        public void LoadTexture(ContentManager contentManager)
         {
-            Bounds = new Rectangle();
-        }
-
-        public void Initialize(Point position)
-        {
-            Position = position;
-        }
-
-        public void LoadTexture(GraphicsDevice graphicsDevice, Color color)
-        {
-            Texture = new Texture2D(graphicsDevice, 1, 1);
-            Texture.SetData<Color>(new Color[] { color });
-        }
-
-        public virtual void LoadTexture(ContentManager content, string name)
-        {
-            Texture = content.Load<Texture2D>(name);
+            Texture = contentManager.Load<Texture2D>(TextureName);
             Bounds = new Rectangle(Bounds.X, Bounds.Y, Texture.Width, Texture.Height);
         }
 
-        public virtual void Draw(SpriteBatch spriteBatch)
+        protected virtual void DrawFunc(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Texture, Bounds, null, Color.White, 0, Vector2.Zero, SpriteEffects.None, 0);
+            spriteBatch.Draw(Texture, Bounds, Color.White);
         }
 
-        public void DrawRotated(SpriteBatch spriteBatch, float angle, Vector2 origin)
+        public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Texture, Bounds, null, Color.White, angle, origin, SpriteEffects.None, 0);
-        }
-
-        public void DrawTiled(SpriteBatch spriteBatch)
-        {
-            spriteBatch.Draw(Texture, Position.ToVector2(), Bounds, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 0);
+            if (Visible)
+            {
+                DrawFunc(spriteBatch);
+            }
         }
     }
 }

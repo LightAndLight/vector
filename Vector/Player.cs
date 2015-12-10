@@ -5,35 +5,26 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Vector
 {
-    class Player : Sprite, Vector.IMove, Vector.IJump, Vector.ICollide
+    class Player : Sprite, Vector.IMove, Vector.IJump
     {
         public Vector2 Velocity { get; set; }
-        public Arrow Arrow { get; set; }
-        public PowerBar PowerBar { get; set; }
-        public bool GravityOn { get; set; }
 
-        int MoveSpeed;
-        int JumpSpeed;
-        int Gravity;
+        private int MoveSpeed;
+        private int JumpSpeed;
+        private bool GravityOn;
+        private float Gravity;
 
-        public Player()
+        public Player(
+            string textureName,
+            Point position,
+            int moveSpeed,
+            int jumpSpeed) : base(textureName, position)
         {
-            Arrow = new Arrow();
-            PowerBar = new PowerBar();
-            Gravity = 1;
+            Gravity = 0.7f;
             GravityOn = true;
-        }
-
-        public void Initialize(Point position, int moveSpeed, int jumpSpeed)
-        {
-            base.Initialize(position);
-            Arrow.Initialize(position, 1, 8);
-            PowerBar.Initialize(new Point(380,10));
-
             Velocity = Vector2.Zero;
             MoveSpeed = moveSpeed;
             JumpSpeed = jumpSpeed;
-
         }
 
         public void MoveLeft()
@@ -48,57 +39,67 @@ namespace Vector
 
         public void Stop()
         {
-            Velocity = Vector2.Zero;
+            Velocity = new Vector2(GravityOn ? Velocity.X : 0, Velocity.Y);
         }
 
         public void Jump()
         {
-            Velocity = new Vector2(Velocity.X, -JumpSpeed);
-            GravityOn = true;
-        }
-
-        public override void Update()
-        {
-            base.Update();
-
-            Velocity = new Vector2(Velocity.X, Velocity.Y + (GravityOn ? Gravity : 0));
-            Position = new Point((int)(Position.X + Velocity.X), (int)(Position.Y + Velocity.Y));
-
-            Arrow.Direction = Velocity;
-            Arrow.Position = new Point(Position.X+Bounds.Width/2,Position.Y+Bounds.Height/2);
-        }
-
-        public void Collide<T>(T component) where T : Sprite, Vector.ICollide
-        {
-            Rectangle velocityBB = new Rectangle(Position, Velocity.ToPoint());
-            if (Bounds.Intersects(component.Bounds) || velocityBB.Intersects(component.Bounds))
-            {
-                if (Bounds.Bottom > component.Bounds.Top || velocityBB.Bottom > component.Bounds.Top)
-                {
-                    Velocity = new Vector2(Velocity.X, 0);
-                    Position = new Point(Position.X, component.Bounds.Top - Bounds.Height);
-                    GravityOn = false;
-                }
+            if (!GravityOn) {
+                Velocity = new Vector2(Velocity.X, -JumpSpeed);
+                GravityOn = true;
             }
         }
 
-        public void Collide(RenderTarget2D renderTarget)
+        public void Update()
+        {
+            Velocity = new Vector2(Velocity.X, Velocity.Y + (GravityOn ? Gravity : 0));
+            base.Bounds = new Rectangle(
+                Bounds.X + (int)Velocity.X,
+                Bounds.Y + (int)Velocity.Y,
+                Bounds.Width,
+                Bounds.Height);
+            Console.Write(base.Bounds.Location);
+        }
+
+        public void CollideWithScreen(RenderTarget2D renderTarget)
         {
             if (Bounds.Left + Velocity.X < renderTarget.Bounds.Left)
             {
                 Velocity = new Vector2(0, Velocity.Y);
-                Position = new Point(renderTarget.Bounds.Left, Position.Y);
+                base.Bounds = new Rectangle(
+                    renderTarget.Bounds.Left,
+                    Bounds.Y,
+                    Bounds.Width,
+                    Bounds.Height);
             }
             else if (Bounds.Right + Velocity.X > renderTarget.Bounds.Right)
             {
                 Velocity = new Vector2(0, Velocity.Y);
-                Position = new Point(renderTarget.Bounds.Right - Bounds.Width, Position.Y);
+                base.Bounds = new Rectangle(
+                    renderTarget.Bounds.Right - Bounds.Width,
+                    Bounds.Y,
+                    Bounds.Width,
+                    Bounds.Height);
             }
 
             if (Bounds.Top + Velocity.Y < renderTarget.Bounds.Top)
             {
                 Velocity = new Vector2(Velocity.X, 0);
-                Position = new Point(Position.X, renderTarget.Bounds.Top);
+                base.Bounds= new Rectangle(
+                    Bounds.X,
+                    renderTarget.Bounds.Top,
+                    Bounds.Width,
+                    Bounds.Height);
+            }
+            else if (Bounds.Bottom + Velocity.Y > renderTarget.Bounds.Bottom)
+            {
+                Velocity = new Vector2(Velocity.X, 0);
+                base.Bounds = new Rectangle(
+                    Bounds.X,
+                    renderTarget.Bounds.Bottom - Bounds.Height,
+                    Bounds.Width,
+                    Bounds.Height);
+                GravityOn = false;
             }
         }
     }

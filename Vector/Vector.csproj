@@ -38,19 +38,14 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Arrow.cs" />
-    <Compile Include="ICollide.cs" />
-    <Compile Include="InputManager.cs" />
-    <Compile Include="PowerBar.cs" />
     <Compile Include="Sprite.cs" />
+    <Compile Include="InputManager.cs" />
     <Compile Include="IJump.cs" />
     <Compile Include="IMove.cs" />
-    <Compile Include="IUpdate.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="MainGame.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Wall.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">
