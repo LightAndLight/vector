@@ -20,7 +20,6 @@ namespace Vector
         {
             float theta = (float) ((Velocity.Y < 0 ? -1 : 1) * Math.Acos(Vector2.Dot(Vector2.UnitX, Velocity) / Velocity.Length()));
             Rectangle bounds = new Rectangle(Bounds.Location, new Point((int) Velocity.Length() * 10, Bounds.Height));
-            Console.Write(bounds);
             spriteBatch.Draw(base.Texture, bounds, null, Color.White, theta, new Vector2(0, Bounds.Height / 2), SpriteEffects.None, 0);
         }
     }
